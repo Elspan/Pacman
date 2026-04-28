@@ -52,6 +52,7 @@ public class GameManager : MonoBehaviour
     public int lives;
     public int currentLevel;
 
+    public Image blackBackground;
     public enum GhostMode
     {
         chase,
@@ -65,6 +66,7 @@ public class GameManager : MonoBehaviour
     {   
         newGame = true;
         clearedLevel = false;
+        blackBackground.enabled = false;
 
         redGhostController = redGhost.GetComponent<EnemyController>();
         pinkGhostController = pinkGhost.GetComponent<EnemyController>();
@@ -84,18 +86,22 @@ public class GameManager : MonoBehaviour
     {
         // If pacman clears a level, a background will appear covering the level
         if (clearedLevel)
-        {
+        {   
+            blackBackground.enabled = true;
             yield return new WaitForSeconds(0.1f);
         }
+        blackBackground.enabled = false;
 
         pelletsCollectedOnThisLife = 0;
         currentGhostMode = GhostMode.scatter;
         gameIsRunning = false;
         currentMunch = 0;
+
         float waitTimer = 1f;
 
         if (clearedLevel || newGame)
         {
+            pelletsLeft = totalPellets;
             waitTimer = 4f;
             // Pellets will respawn when pacman clears the level or a new game
             for (int i = 0; i < nodeControllers.Count; i++)
@@ -133,6 +139,13 @@ public class GameManager : MonoBehaviour
         siren.Play();
     }
 
+    void StopGame()
+    {
+        gameIsRunning = false;
+        siren.Stop();
+        pacman.GetComponent<PlayerController>().Stop();
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -152,7 +165,7 @@ public class GameManager : MonoBehaviour
         scoreText.text = "Score : " + score.ToString();
     }
 
-    public void ColledPellet(NodeController nodeController)
+    public IEnumerator ColledPellet(NodeController nodeController)
     {
         if (currentMunch == 0)
         {
@@ -194,8 +207,14 @@ public class GameManager : MonoBehaviour
         AddtoScore(10);
 
         // Check if there are any pellets left
-
-        // Check how many pellet were eaten
+        if (pelletsLeft == 0)
+        {   
+            currentLevel++;
+            clearedLevel = true;
+            StopGame();
+            yield return new WaitForSeconds(1f);
+            StartCoroutine(Setup());
+        }
 
         // Is this a power pellet?
     }
