@@ -61,7 +61,14 @@ public class EnemyController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         ghostSprite = GetComponent<SpriteRenderer>();
-        eyesSprite = GetComponentInChildren<SpriteRenderer>();
+        foreach (SpriteRenderer sr in GetComponentsInChildren<SpriteRenderer>())
+        {
+            if (sr.gameObject != gameObject)
+            {
+                eyesSprite = sr;
+                break;
+            }
+        }
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         movementController = GetComponent<MovementController>();
         if (ghostType == GhostType.red)
@@ -135,6 +142,14 @@ public class EnemyController : MonoBehaviour
         // Show our sprites
         if (isVisible)
         {
+            if (ghostNodeState != GhostNodeStatesEnum.respawning)
+            {
+                ghostSprite.enabled = true;
+            }
+            else
+            {
+                ghostSprite.enabled = false;
+            }
             ghostSprite.enabled = true;
             eyesSprite.enabled = true;
         }
@@ -308,10 +323,11 @@ public class EnemyController : MonoBehaviour
             possibleDirections.Add("right");
         }
 
-        string direction = "";
-        int randomDirectionIndex = Random.Range(0, possibleDirections.Count -1);
-        direction = possibleDirections[randomDirectionIndex];
-        return direction;
+        if (possibleDirections.Count == 0)
+            return movementController.lastMovingDirection;
+
+        int randomDirectionIndex = Random.Range(0, possibleDirections.Count);
+        return possibleDirections[randomDirectionIndex];
     }
 
     void  DetermineGhostScatterModeDirection()
@@ -487,7 +503,8 @@ public class EnemyController : MonoBehaviour
             // Get eaten
             if (isFrightened)
             {
-                
+                gameManager.GhostEaten();
+                ghostNodeState =  GhostNodeStatesEnum.respawning;
             }
             // Eat pacman
             else

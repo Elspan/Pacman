@@ -164,6 +164,7 @@ public class GameManager : MonoBehaviour
     {
         gameIsRunning = false;
         siren.Stop();
+        powerPelletAudio.Stop();
         pacman.GetComponent<PlayerController>().Stop();
     }
 
@@ -290,6 +291,18 @@ public class GameManager : MonoBehaviour
             blueGhostController.SetFrightened(true);
             orangeGhostController.SetFrightened(true);
         }
+    }
+
+    public IEnumerator PauseGame(float timeToPause)
+    {
+        gameIsRunning = false;
+        yield return new WaitForSeconds(timeToPause);
+        gameIsRunning = true;
+    }
+
+    public void GhostEaten()
+    {
+        StartCoroutine(PauseGame(1));
     }
 
     public IEnumerator PlayerEaten()
