@@ -10,6 +10,8 @@ public class MovementController : MonoBehaviour
     public string lastMovingDirection = "";
 
     public bool canWarp = true;
+
+    public bool isGhost = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
@@ -32,6 +34,10 @@ public class MovementController : MonoBehaviour
 
         if ((transform.position.x == currentNode.transform.position.x && transform.position.y == currentNode.transform.position.y) || reverseDirection)
         {
+            if (isGhost)
+            {
+                GetComponent<EnemyController>().ReachedCenterOfNode(currentNodeController);
+            }
             // If we reach the center of the left warp, warp to the right warp
             if (currentNodeController.isWarpLeftNode && canWarp)
             {

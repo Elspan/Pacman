@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public GameObject pacman;
+
     public GameObject leftWarpNode;
     public GameObject rightWarpNode;
     public AudioSource siren;
