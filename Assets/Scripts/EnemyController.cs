@@ -150,7 +150,6 @@ public class EnemyController : MonoBehaviour
             {
                 ghostSprite.enabled = false;
             }
-            ghostSprite.enabled = true;
             eyesSprite.enabled = true;
         }
         // Hide our sprites
@@ -498,7 +497,7 @@ public class EnemyController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Player")
+        if (collision.gameObject.tag == "Player" && ghostNodeState != GhostNodeStatesEnum.respawning)
         {
             // Get eaten
             if (isFrightened)
