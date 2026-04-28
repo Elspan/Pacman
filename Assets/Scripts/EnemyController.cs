@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.GraphToolkit.Editor;
 using UnityEngine;
 
@@ -14,6 +15,7 @@ public class EnemyController : MonoBehaviour
     }
 
     public GhostNodeStatesEnum ghostNodeState;
+    public GhostNodeStatesEnum startGhostNodeState;
     public GhostNodeStatesEnum respawnState;
 
     public enum GhostType
@@ -42,44 +44,73 @@ public class EnemyController : MonoBehaviour
     public bool isFrightened = false;
     public GameObject[] scatterNodes;
     public int scatterNodeIndex;
+
+    public bool leftHomeBefore = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
-        scatterNodeIndex = 0;
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         movementController = GetComponent<MovementController>();
         if (ghostType == GhostType.red)
         {
-            ghostNodeState = GhostNodeStatesEnum.movingInNodes;
+            startGhostNodeState = GhostNodeStatesEnum.startNode;
             respawnState = GhostNodeStatesEnum.centerNode;
             startingNode = ghostNodeStart;
-            readyToLeaveHome = true;
         }
         else if (ghostType == GhostType.pink)
         {
-            ghostNodeState = GhostNodeStatesEnum.centerNode;
+            startGhostNodeState = GhostNodeStatesEnum.centerNode;
             startingNode = ghostNodeCenter;
             respawnState = GhostNodeStatesEnum.centerNode;
         }
         else if (ghostType == GhostType.blue)
         {
-            ghostNodeState = GhostNodeStatesEnum.leftNode;
+            startGhostNodeState = GhostNodeStatesEnum.leftNode;
             respawnState = GhostNodeStatesEnum.leftNode;
             startingNode = ghostNodeLeft;
         }
         else if (ghostType == GhostType.orange)
         {
-            ghostNodeState = GhostNodeStatesEnum.rightNode;
+            startGhostNodeState = GhostNodeStatesEnum.rightNode;
             respawnState = GhostNodeStatesEnum.rightNode;
             startingNode = ghostNodeRight;
         }
+    }
+
+    public void Setup()
+    {
+        ghostNodeState = startGhostNodeState;
+        
+        // Reset our ghosts back to their home position
         movementController.currentNode = startingNode;
         transform.position = startingNode.transform.position;
+
+        // Set their scatter node index back to 0
+        scatterNodeIndex = 0;
+        
+        // Set isFrightened
+        isFrightened = false;
+
+        // Set readyToLeaveHome to false if they are blue or pink
+        if (ghostType == GhostType.red)
+        {
+            readyToLeaveHome = true;
+            leftHomeBefore = true;
+        }
+        else if (ghostType == GhostType.pink)
+        {
+            readyToLeaveHome = true;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!gameManager.gameIsRunning)
+        {
+            return;
+        }
+
         if (testRespawn == true)
         {
             readyToLeaveHome = false;
@@ -101,6 +132,7 @@ public class EnemyController : MonoBehaviour
     {
         if (ghostNodeState == GhostNodeStatesEnum.movingInNodes)
         {
+            leftHomeBefore = true;
             // Scatter mode
             if (gameManager.currentGhostMode == GameManager.GhostMode.scatter)
             {
@@ -109,7 +141,8 @@ public class EnemyController : MonoBehaviour
             // Frightened mode
             else if (isFrightened)
             {
-                
+                string direction = GetRandomDirection();
+                movementController.SetDirection(direction);
             }
             // Chase mode
             else
@@ -195,6 +228,34 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    string GetRandomDirection()
+    {
+        List<string> possibleDirections = new List<string>();
+        NodeController nodeController = movementController.currentNode.GetComponent<NodeController>();
+
+        if (nodeController.canMoveDown && movementController.lastMovingDirection != "up")
+        {
+            possibleDirections.Add("down");
+        }
+        if (nodeController.canMoveUp && movementController.lastMovingDirection != "down")
+        {
+            possibleDirections.Add("up");
+        }
+        if (nodeController.canMoveLeft && movementController.lastMovingDirection != "right")
+        {
+            possibleDirections.Add("left");
+        }
+        if (nodeController.canMoveRight && movementController.lastMovingDirection != "left")
+        {
+            possibleDirections.Add("right");
+        }
+
+        string direction = "";
+        int randomDirectionIndex = Random.Range(0, possibleDirections.Count -1);
+        direction = possibleDirections[randomDirectionIndex];
+        return direction;
+    }
+
     void  DetermineGhostScatterModeDirection()
     {
         // If we are at the current scatter node, move to the next one
@@ -209,11 +270,6 @@ public class EnemyController : MonoBehaviour
         string direction = GetClosestDirection(scatterNodes[scatterNodeIndex].transform.position);
         movementController.SetDirection(direction);
     }
-
-
-
-
-
 
     void DeterminRedGhostDirection()
     {

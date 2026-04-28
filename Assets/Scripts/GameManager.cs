@@ -1,3 +1,7 @@
+using System.Collections;
+using System.Collections.Generic;
+using Unity.GraphToolkit.Editor;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,11 +23,34 @@ public class GameManager : MonoBehaviour
     public GameObject ghostNodeRight;
     public GameObject ghostNodeCenter;
     public GameObject ghostNodeStart;
-    
+
     public GameObject redGhost;
     public GameObject pinkGhost;
     public GameObject blueGhost;
     public GameObject orangeGhost;
+
+    public EnemyController redGhostController;
+    public EnemyController pinkGhostController;
+    public EnemyController blueGhostController;
+    public EnemyController orangeGhostController;
+
+    public int totalPellets;
+    public int pelletsLeft;
+    public int pelletsCollectedOnThisLife;
+
+    public bool hadDeathOnThisLevel = false;
+
+    public bool gameIsRunning;
+
+    public List<NodeController> nodeControllers = new List<NodeController>();
+
+    public bool newGame;
+    public bool clearedLevel;
+
+    public AudioSource startGameAudio;
+    
+    public int lives;
+    public int currentLevel;
 
     public enum GhostMode
     {
@@ -36,10 +63,73 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {   
-        currentGhostMode = GhostMode.chase;
+        newGame = true;
+        clearedLevel = false;
+
+        redGhostController = redGhost.GetComponent<EnemyController>();
+        pinkGhostController = pinkGhost.GetComponent<EnemyController>();
+        blueGhostController = blueGhost.GetComponent<EnemyController>();
+        orangeGhostController = orangeGhost.GetComponent<EnemyController>();
+
+
         ghostNodeStart.GetComponent<NodeController>().isGhostStartingNode = true;
-        score = 0;
+    }
+
+    void Start()
+    {
+        StartCoroutine(Setup());
+    }
+
+    public IEnumerator Setup()
+    {
+        // If pacman clears a level, a background will appear covering the level
+        if (clearedLevel)
+        {
+            yield return new WaitForSeconds(0.1f);
+        }
+
+        pelletsCollectedOnThisLife = 0;
+        currentGhostMode = GhostMode.scatter;
+        gameIsRunning = false;
         currentMunch = 0;
+        float waitTimer = 1f;
+
+        if (clearedLevel || newGame)
+        {
+            waitTimer = 4f;
+            // Pellets will respawn when pacman clears the level or a new game
+            for (int i = 0; i < nodeControllers.Count; i++)
+            {
+                nodeControllers[i].RespawnPellet();
+            }
+        }
+
+        if (newGame)
+        {
+            startGameAudio.Play();
+            score = 0;
+            scoreText.text = "Score : " + score.ToString();
+            lives = 3;
+            currentLevel = 1;
+        }
+
+        pacman.GetComponent<PlayerController>().Setup();
+
+        redGhostController.Setup();
+        pinkGhostController.Setup();
+        blueGhostController.Setup();
+        orangeGhostController.Setup();
+
+        newGame = false;
+        clearedLevel = false;
+        yield return new WaitForSeconds(waitTimer);
+
+        StartGame();
+    }
+
+    void StartGame()
+    {
+        gameIsRunning = true;
         siren.Play();
     }
 
@@ -47,6 +137,13 @@ public class GameManager : MonoBehaviour
     void Update()
     {
         
+    }
+
+    public void GotPelletFromNodeController(NodeController nodeController)
+    {
+        nodeControllers.Add(nodeController);
+        totalPellets++;
+        pelletsLeft++;
     }
 
     public void AddtoScore(int amount)
@@ -68,6 +165,31 @@ public class GameManager : MonoBehaviour
             currentMunch = 0;
         }
 
+        pelletsLeft--;
+        pelletsCollectedOnThisLife++;
+
+        int requiredBluePellets = 0;
+        int requiredOrangePellets = 0;
+
+        if (hadDeathOnThisLevel)
+        {
+            requiredBluePellets = 12;
+            requiredOrangePellets = 32;
+        }
+        else
+        {
+            requiredBluePellets = 30;
+            requiredOrangePellets = 60;
+        }
+
+        if (pelletsCollectedOnThisLife >= requiredBluePellets && !blueGhost.GetComponent<EnemyController>().leftHomeBefore)
+        {
+            blueGhost.GetComponent<EnemyController>().readyToLeaveHome = true;
+        }
+        if (pelletsCollectedOnThisLife >= requiredOrangePellets && !orangeGhost.GetComponent<EnemyController>().leftHomeBefore)
+        {
+            orangeGhost.GetComponent<EnemyController>().readyToLeaveHome = true;
+        }
         // Add to our score
         AddtoScore(10);
 

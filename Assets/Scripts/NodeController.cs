@@ -30,8 +30,9 @@ public class NodeController : MonoBehaviour
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         if (transform.childCount > 0)
         {
-            isPelletNode = true;
+            gameManager.GotPelletFromNodeController(this);
             hasPellet = true;
+            isPelletNode = true;
             pelletSprite = GetComponentInChildren<SpriteRenderer>();
         }
         RaycastHit2D[] hitsDown;
@@ -125,7 +126,16 @@ public class NodeController : MonoBehaviour
         return null;
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
+    public void RespawnPellet()
+    {
+        if (isPelletNode)
+        {
+            hasPellet = true;
+            pelletSprite.enabled = true;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Player" && hasPellet)
         {

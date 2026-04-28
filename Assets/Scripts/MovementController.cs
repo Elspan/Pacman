@@ -21,6 +21,11 @@ public class MovementController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!gameManager.gameIsRunning)
+        {
+            return;
+        }
+
         NodeController currentNodeController = currentNode.GetComponent<NodeController>();
 
         // Multiply by real time, not CPU clock

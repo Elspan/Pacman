@@ -2,22 +2,42 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public Animator animator;
-    public SpriteRenderer sprite;
     MovementController movementController;
+    public SpriteRenderer sprite;
+    public Animator animator;
+
+    public GameObject startNode;
+    
+    public Vector2 startPos;
+
+    public GameManager gameManager;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+        startPos = new Vector2(-0.06f, -0.63f);
         animator = GetComponentInChildren<Animator>();
         sprite = GetComponentInChildren<SpriteRenderer>();
-
         movementController = GetComponent<MovementController>();
+        startNode = movementController.currentNode;
+    }
+
+    public void Setup()
+    {
+        movementController.currentNode = startNode;
         movementController.lastMovingDirection = "left";
+        transform.position = startPos;
+        animator.SetBool("moving", false);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!gameManager.gameIsRunning)
+        {
+            return;
+        }
+
         animator.SetBool("moving", true);
         if (Input.GetKey(KeyCode.LeftArrow))
         {
