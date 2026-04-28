@@ -14,6 +14,9 @@ public class GameManager : MonoBehaviour
     public AudioSource siren;
     public AudioSource munch1;
     public AudioSource munch2;
+    public AudioSource startGameAudio;
+    public AudioSource deathAudio;
+
     public int currentMunch;
 
     public int score;
@@ -46,13 +49,13 @@ public class GameManager : MonoBehaviour
 
     public bool newGame;
     public bool clearedLevel;
-
-    public AudioSource startGameAudio;
     
     public int lives;
     public int currentLevel;
 
     public Image blackBackground;
+
+    public Text gameOverText;
     public enum GhostMode
     {
         chase,
@@ -84,6 +87,7 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator Setup()
     {
+        gameOverText.enabled = false;
         // If pacman clears a level, a background will appear covering the level
         if (clearedLevel)
         {   
@@ -217,5 +221,32 @@ public class GameManager : MonoBehaviour
         }
 
         // Is this a power pellet?
+    }
+
+    public IEnumerator PlayerEaten()
+    {
+        hadDeathOnThisLevel = true;
+        StopGame();
+        yield return new WaitForSeconds(1);
+
+        redGhostController.SetVisible(false);
+        pinkGhostController.SetVisible(false);
+        blueGhostController.SetVisible(false);
+        orangeGhostController.SetVisible(false);
+
+        pacman.GetComponent<PlayerController>().Death();
+        deathAudio.Play();
+        yield return new WaitForSeconds(3);
+
+        lives--;
+        if (lives <= 0)
+        {
+            // Game over
+            newGame = true;
+            gameOverText.enabled = true;
+            yield return new WaitForSeconds(3);
+        }
+
+        StartCoroutine(Setup());
     }
 }

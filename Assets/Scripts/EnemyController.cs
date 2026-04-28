@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NUnit.Framework;
 using Unity.GraphToolkit.Editor;
 using UnityEngine;
 
@@ -46,9 +47,16 @@ public class EnemyController : MonoBehaviour
     public int scatterNodeIndex;
 
     public bool leftHomeBefore = false;
+
+    public bool isVisible = true;
+
+    public SpriteRenderer ghostSprite;
+    public SpriteRenderer eyesSprite;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        ghostSprite = GetComponent<SpriteRenderer>();
+        eyesSprite = GetComponentInChildren<SpriteRenderer>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         movementController = GetComponent<MovementController>();
         if (ghostType == GhostType.red)
@@ -106,11 +114,24 @@ public class EnemyController : MonoBehaviour
         {
             readyToLeaveHome = true;
         }
+        SetVisible(true);
     }
 
     // Update is called once per frame
     void Update()
     {
+        // Show our sprites
+        if (isVisible)
+        {
+            ghostSprite.enabled = true;
+            eyesSprite.enabled = true;
+        }
+        // Hide our sprites
+        else
+        {
+            ghostSprite.enabled = false;
+            eyesSprite.enabled = false;
+        }
         if (!gameManager.gameIsRunning)
         {
             return;
@@ -420,5 +441,27 @@ public class EnemyController : MonoBehaviour
         }
 
         return newDirection;
+    }
+
+    public void SetVisible(bool newIsVisible)
+    {
+        isVisible = newIsVisible;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.tag == "Player")
+        {
+            // Get eaten
+            if (isFrightened)
+            {
+                
+            }
+            // Eat pacman
+            else
+            {
+                StartCoroutine(gameManager.PlayerEaten());
+            }
+        }
     }
 }
