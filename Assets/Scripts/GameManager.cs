@@ -14,9 +14,25 @@ public class GameManager : MonoBehaviour
 
     public int score;
     public Text scoreText;
+
+    public GameObject ghostNodeLeft;
+    public GameObject ghostNodeRight;
+    public GameObject ghostNodeCenter;
+    public GameObject ghostNodeStart;
+
+    public enum GhostMode
+    {
+        chase,
+        scatter,
+    }
+
+    public GhostMode currentGhostMode;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
-    {
+    {   
+        currentGhostMode = GhostMode.chase;
+        ghostNodeStart.GetComponent<NodeController>().isGhostStartingNode = true;
         score = 0;
         currentMunch = 0;
         siren.Play();

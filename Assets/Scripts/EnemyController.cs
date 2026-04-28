@@ -14,6 +14,7 @@ public class EnemyController : MonoBehaviour
     }
 
     public GhostNodeStatesEnum ghostNodeState;
+    public GhostNodeStatesEnum respawnState;
 
     public enum GhostType
     {
@@ -24,6 +25,7 @@ public class EnemyController : MonoBehaviour
     }
 
     public GhostType ghostType;
+    
 
     public GameObject ghostNodeLeft;
     public GameObject ghostNodeRight;
@@ -35,53 +37,113 @@ public class EnemyController : MonoBehaviour
     public bool readyToLeaveHome = false;
 
     public GameManager gameManager;
+
+    public bool testRespawn = false;
+    public bool isFrightened = false;
+    public GameObject[] scatterNodes;
+    public int scatterNodeIndex;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        scatterNodeIndex = 0;
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
         movementController = GetComponent<MovementController>();
         if (ghostType == GhostType.red)
         {
             ghostNodeState = GhostNodeStatesEnum.movingInNodes;
+            respawnState = GhostNodeStatesEnum.centerNode;
             startingNode = ghostNodeStart;
+            readyToLeaveHome = true;
         }
         else if (ghostType == GhostType.pink)
         {
             ghostNodeState = GhostNodeStatesEnum.centerNode;
             startingNode = ghostNodeCenter;
+            respawnState = GhostNodeStatesEnum.centerNode;
         }
         else if (ghostType == GhostType.blue)
         {
             ghostNodeState = GhostNodeStatesEnum.leftNode;
+            respawnState = GhostNodeStatesEnum.leftNode;
             startingNode = ghostNodeLeft;
         }
         else if (ghostType == GhostType.orange)
         {
             ghostNodeState = GhostNodeStatesEnum.rightNode;
+            respawnState = GhostNodeStatesEnum.rightNode;
             startingNode = ghostNodeRight;
         }
         movementController.currentNode = startingNode;
+        transform.position = startingNode.transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (testRespawn)
+        {
+            ghostNodeState = GhostNodeStatesEnum.respawning;
+            testRespawn = false;
+        }
     }
 
     public void ReachedCenterOfNode(NodeController nodeController)
     {
         if (ghostNodeState == GhostNodeStatesEnum.movingInNodes)
         {
-            // Determine the next game node to go to
-            if (ghostType == GhostType.red)
+            // Scatter mode
+            if (gameManager.currentGhostMode == GameManager.GhostMode.scatter)
             {
-                DeterminRedGhostDirection();
+                
+            }
+            // Frightened mode
+            else if (isFrightened)
+            {
+                
+            }
+            // Chase mode
+            else
+            {
+                if (ghostType == GhostType.red)
+                {
+                    DeterminRedGhostDirection();
+                }
             }
         }
         else if (ghostNodeState == GhostNodeStatesEnum.respawning)
         {
-            // Determine quickest direction to home
+            string direction = "";
+            if (transform.position.x == ghostNodeStart.transform.position.x && transform.position.y == ghostNodeStart.transform.position.y)
+            {
+                direction = "down";
+            }
+            else if (transform.position.x == ghostNodeCenter.transform.position.x && transform.position.y == ghostNodeCenter.transform.position.y)
+            {
+                if (respawnState == GhostNodeStatesEnum.centerNode)
+                {
+                    ghostNodeState = respawnState;
+                }
+                else if (respawnState == GhostNodeStatesEnum.leftNode)
+                {
+                    direction = "left";
+                }
+                else if (respawnState == GhostNodeStatesEnum.rightNode)
+                {
+                    direction = "right";
+                }
+            }
+            // If our respawn state is the left node and we are in the left node, change our state to center node
+            else if ((transform.position.x == ghostNodeLeft.transform.position.x && transform.position.y == ghostNodeLeft.transform.position.y) || (transform.position.x == ghostNodeRight.transform.position.x && transform.position.y == ghostNodeRight.transform.position.y))
+            {
+                ghostNodeState = respawnState;
+            }
+            // We are in the gameboard
+            else
+            {
+                direction = GetClosestDirection(ghostNodeStart.transform.position);
+            }
+
+            movementController.SetDirection(direction);
         }
         else
         {

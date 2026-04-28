@@ -19,7 +19,7 @@ public class NodeController : MonoBehaviour
     public bool isPelletNode = false;
     // If the node stll has a pellet
     public bool hasPellet = false;
-
+    public bool isGhostStartingNode = false;
     public SpriteRenderer pelletSprite;
     public GameManager gameManager;
 
@@ -88,6 +88,12 @@ public class NodeController : MonoBehaviour
                 canMoveRight = true;
                 nodeRight = hitsRight[i].collider.gameObject;
             }
+        }
+
+        if (isGhostStartingNode)
+        {
+            canMoveDown = true;
+            nodeDown = gameManager.ghostNodeCenter;
         }
     }
 

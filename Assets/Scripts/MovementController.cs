@@ -57,6 +57,10 @@ public class MovementController : MonoBehaviour
             }
             else
             {
+                if (currentNodeController.isGhostStartingNode && direction == "down" && (!isGhost || GetComponent<EnemyController>().ghostNodeState != EnemyController.GhostNodeStatesEnum.respawning))
+                {
+                    direction = lastMovingDirection;
+                }
                 GameObject newNode = currentNodeController.GetNodeFromDirection(direction);
                 if (newNode != null)
                 {
@@ -70,18 +74,27 @@ public class MovementController : MonoBehaviour
                     if (newNode != null)
                     {
                         currentNode = newNode;
-                        lastMovingDirection = direction;
-                    }
-                    else
-                    {
-                        direction = lastMovingDirection;
-                        newNode = currentNodeController.GetNodeFromDirection(direction);
-                        if (newNode != null)
-                        {
-                            currentNode = newNode;
-                        }
                     }
                 }                
+                // else
+                // {
+                //     direction = lastMovingDirection;
+                //     newNode = currentNodeController.GetNodeFromDirection(direction);
+                //     if (newNode != null)
+                //     {
+                //         currentNode = newNode;
+                //         lastMovingDirection = direction;
+                //     }
+                //     else
+                //     {
+                //         direction = lastMovingDirection;
+                //         newNode = currentNodeController.GetNodeFromDirection(direction);
+                //         if (newNode != null)
+                //         {
+                //             currentNode = newNode;
+                //         }
+                //     }
+                // }                
             }
         }
         else
