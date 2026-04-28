@@ -42,7 +42,7 @@ public class EnemyController : MonoBehaviour
         movementController = GetComponent<MovementController>();
         if (ghostType == GhostType.red)
         {
-            ghostNodeState = GhostNodeStatesEnum.startNode;
+            ghostNodeState = GhostNodeStatesEnum.movingInNodes;
             startingNode = ghostNodeStart;
         }
         else if (ghostType == GhostType.pink)
@@ -74,7 +74,7 @@ public class EnemyController : MonoBehaviour
         if (ghostNodeState == GhostNodeStatesEnum.movingInNodes)
         {
             // Determine the next game node to go to
-            if (ghostType == GhostType.red);
+            if (ghostType == GhostType.red)
             {
                 DeterminRedGhostDirection();
             }

@@ -60136,7 +60136,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_MaskInteraction: 0
   m_Sprite: {fileID: 6963287583850828681, guid: 57af40f77d138c0429b36806fd255122, type: 3}
   m_Color: {r: 0.98039216, g: 0, b: 0, a: 1}
@@ -60162,11 +60162,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MovementController
   gameManager: {fileID: 0}
   currentNode: {fileID: 0}
-  speed: 4
+  speed: 2
   direction: 
   lastMovingDirection: 
   canWarp: 1
-  isGhost: 0
+  isGhost: 1
 --- !u!114 &1983121455
 MonoBehaviour:
   m_ObjectHideFlags: 0
