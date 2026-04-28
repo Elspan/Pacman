@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     public AudioSource siren;
     public AudioSource munch1;
     public AudioSource munch2;
+    public AudioSource powerPelletAudio;
     public AudioSource startGameAudio;
     public AudioSource deathAudio;
 
@@ -56,6 +57,12 @@ public class GameManager : MonoBehaviour
     public Image blackBackground;
 
     public Text gameOverText;
+    
+    public bool isPowerPelletRunning = false;
+    public float currentPowerPelletTime = 0;
+    public float powerPelletTimer = 8f;
+    public int powerPelletMultiplier = 1;
+
     public enum GhostMode
     {
         chase,
@@ -68,7 +75,7 @@ public class GameManager : MonoBehaviour
     public int ghostModeTimerIndex;
     public float ghostModeTimer = 0;
     public bool runningTimer;
-    public bool completedTimer;
+    public bool completedTimer; 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
@@ -191,6 +198,19 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
+
+        if (isPowerPelletRunning)
+        {
+            currentPowerPelletTime += Time.deltaTime;
+            if (currentPowerPelletTime >= powerPelletTimer)
+            {
+                isPowerPelletRunning = false;
+                currentPowerPelletTime = 0;
+                powerPelletAudio.Stop();
+                siren.Play();
+                powerPelletMultiplier = 1;
+            }
+        }
     }
 
     public void GotPelletFromNodeController(NodeController nodeController)
@@ -258,6 +278,18 @@ public class GameManager : MonoBehaviour
         }
 
         // Is this a power pellet?
+        if (nodeController.isPowerPellet)
+        {
+            siren.Stop();
+            powerPelletAudio.Play();
+            isPowerPelletRunning = true;
+            currentPowerPelletTime = 0;
+
+            redGhostController.SetFrightened(true);
+            pinkGhostController.SetFrightened(true);
+            blueGhostController.SetFrightened(true);
+            orangeGhostController.SetFrightened(true);
+        }
     }
 
     public IEnumerator PlayerEaten()

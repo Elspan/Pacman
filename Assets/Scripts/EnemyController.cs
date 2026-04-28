@@ -52,9 +52,14 @@ public class EnemyController : MonoBehaviour
 
     public SpriteRenderer ghostSprite;
     public SpriteRenderer eyesSprite;
+
+    public Animator animator;
+
+    public Color color;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
+        animator = GetComponent<Animator>();
         ghostSprite = GetComponent<SpriteRenderer>();
         eyesSprite = GetComponentInChildren<SpriteRenderer>();
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
@@ -87,6 +92,8 @@ public class EnemyController : MonoBehaviour
 
     public void Setup()
     {
+        animator.SetBool("mooving", false);
+
         ghostNodeState = startGhostNodeState;
         readyToLeaveHome = false;
         
@@ -120,6 +127,11 @@ public class EnemyController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (ghostNodeState != GhostNodeStatesEnum.movingInNodes || !gameManager.isPowerPelletRunning)
+        {
+            isFrightened = false;
+        }
+
         // Show our sprites
         if (isVisible)
         {
@@ -132,10 +144,25 @@ public class EnemyController : MonoBehaviour
             ghostSprite.enabled = false;
             eyesSprite.enabled = false;
         }
+
+        if (isFrightened)
+        {
+            animator.SetBool("frightened", true);
+            eyesSprite.enabled = false;
+            ghostSprite.color = Color.white;
+        }
+        else
+        {
+            animator.SetBool("frightened", false);
+            ghostSprite.color = color;
+        }
+
         if (!gameManager.gameIsRunning)
         {
             return;
         }
+
+        animator.SetBool("moving", true);
 
         if (testRespawn == true)
         {
@@ -152,6 +179,11 @@ public class EnemyController : MonoBehaviour
         {
             movementController.SetSpeed(3);
         }
+    }
+
+    public void SetFrightened(bool newIsFrightened)
+    {
+        isFrightened = newIsFrightened;
     }
 
     public void ReachedCenterOfNode(NodeController nodeController)
