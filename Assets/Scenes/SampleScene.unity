@@ -16576,7 +16576,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.08, y: 0.08}
+  m_Size: {x: 0.18, y: 0.18}
   m_EdgeRadius: 0
 --- !u!1 &585507550
 GameObject:
@@ -17542,7 +17542,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.08, y: 0.08}
+  m_Size: {x: 0.18, y: 0.18}
   m_EdgeRadius: 0
 --- !u!1 &622563063
 GameObject:
@@ -45345,7 +45345,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.08, y: 0.08}
+  m_Size: {x: 0.18, y: 0.18}
   m_EdgeRadius: 0
 --- !u!1 &1402522031
 GameObject:
@@ -58975,7 +58975,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.08, y: 0.08}
+  m_Size: {x: 0.18, y: 0.18}
   m_EdgeRadius: 0
 --- !u!1 &1863622632
 GameObject:
@@ -64345,7 +64345,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -317.03, y: 181.1}
+  m_AnchoredPosition: {x: -422.4, y: 240.1}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2021881640
