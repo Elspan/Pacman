@@ -24,6 +24,8 @@ public class GameManager : MonoBehaviour
 
     public int score;
     public Text scoreText;
+    public Text gameOverText;
+    public Text livesText;
 
     public GameObject ghostNodeLeft;
     public GameObject ghostNodeRight;
@@ -57,8 +59,6 @@ public class GameManager : MonoBehaviour
     public int currentLevel;
 
     public Image blackBackground;
-
-    public Text gameOverText;
     
     public bool isPowerPelletRunning = false;
     public float currentPowerPelletTime = 0;
@@ -138,7 +138,7 @@ public class GameManager : MonoBehaviour
             startGameAudio.Play();
             score = 0;
             scoreText.text = "Score : " + score.ToString();
-            lives = 3;
+            SetLives(3);
             currentLevel = 1;
         }
 
@@ -156,6 +156,12 @@ public class GameManager : MonoBehaviour
         StartGame();
     }
 
+    void SetLives(int newLives)
+    {
+        lives = newLives;
+        livesText.text = "Nombre de vies : " + lives;
+    }
+
     void StartGame()
     {
         gameIsRunning = true;
@@ -167,6 +173,7 @@ public class GameManager : MonoBehaviour
         gameIsRunning = false;
         siren.Stop();
         powerPelletAudio.Stop();
+        respawningAudio.Stop();
         pacman.GetComponent<PlayerController>().Stop();
     }
 
@@ -344,7 +351,7 @@ public class GameManager : MonoBehaviour
         deathAudio.Play();
         yield return new WaitForSeconds(3);
 
-        lives--;
+        SetLives(lives - 1);
         if (lives <= 0)
         {
             // Game over
