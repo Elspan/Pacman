@@ -50,6 +50,10 @@ public class EnemyController : MonoBehaviour
 
     public bool isVisible = true;
 
+    private float prisonTimer = 0f;
+    private bool waitingInPrison = false;
+    private bool hasBeenEatenBefore = false;
+
     public SpriteRenderer ghostSprite;
     public SpriteRenderer eyesSprite;
 
@@ -114,9 +118,11 @@ public class EnemyController : MonoBehaviour
         // Set their scatter node index back to 0
         scatterNodeIndex = 0;
         
-        // Set isFrightened
         isFrightened = false;
         leftHomeBefore = false;
+        prisonTimer = 0f;
+        waitingInPrison = false;
+        hasBeenEatenBefore = false;
 
         // Set readyToLeaveHome to false if they are blue or pink
         if (ghostType == GhostType.red)
@@ -197,21 +203,31 @@ public class EnemyController : MonoBehaviour
 
         if (movementController.currentNode.GetComponent<NodeController>().isSideNode)
         {
-            movementController.SetSpeed(1);
+            movementController.SetSpeed(gameManager.settings.ghostFrightenedSpeed);
         }
         else
         {
             if (isFrightened)
             {
-                movementController.SetSpeed(1);
+                movementController.SetSpeed(gameManager.settings.ghostFrightenedSpeed);
             }
-            else if (ghostNodeState == GhostNodeStatesEnum.respawning) 
+            else if (ghostNodeState == GhostNodeStatesEnum.respawning)
             {
                 movementController.SetSpeed(7);
             }
             else
             {
-                movementController.SetSpeed(2);
+                movementController.SetSpeed(gameManager.settings.ghostNormalSpeed);
+            }
+        }
+
+        if (waitingInPrison)
+        {
+            prisonTimer += Time.deltaTime;
+            if (prisonTimer >= gameManager.settings.ghostPrisonTime)
+            {
+                waitingInPrison = false;
+                readyToLeaveHome = true;
             }
         }
     }
@@ -270,6 +286,7 @@ public class EnemyController : MonoBehaviour
                 if (respawnState == GhostNodeStatesEnum.centerNode)
                 {
                     ghostNodeState = respawnState;
+                    StartPrisonTimer();
                 }
                 else if (respawnState == GhostNodeStatesEnum.leftNode)
                 {
@@ -284,6 +301,7 @@ public class EnemyController : MonoBehaviour
             else if ((transform.position.x == ghostNodeLeft.transform.position.x && transform.position.y == ghostNodeLeft.transform.position.y) || (transform.position.x == ghostNodeRight.transform.position.x && transform.position.y == ghostNodeRight.transform.position.y))
             {
                 ghostNodeState = respawnState;
+                StartPrisonTimer();
             }
             // We are in the gameboard
             else
@@ -511,6 +529,16 @@ public class EnemyController : MonoBehaviour
         return newDirection;
     }
 
+    void StartPrisonTimer()
+    {
+        if (hasBeenEatenBefore && gameManager.settings.ghostPrisonTime > 0)
+        {
+            readyToLeaveHome = false;
+            prisonTimer = 0f;
+            waitingInPrison = true;
+        }
+    }
+
     public void SetVisible(bool newIsVisible)
     {
         isVisible = newIsVisible;
@@ -524,7 +552,8 @@ public class EnemyController : MonoBehaviour
             if (isFrightened)
             {
                 gameManager.GhostEaten();
-                ghostNodeState =  GhostNodeStatesEnum.respawning;
+                ghostNodeState = GhostNodeStatesEnum.respawning;
+                hasBeenEatenBefore = true;
             }
             // Eat pacman
             else

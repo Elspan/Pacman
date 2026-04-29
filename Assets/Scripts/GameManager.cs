@@ -77,7 +77,9 @@ public class GameManager : MonoBehaviour
     public int ghostModeTimerIndex;
     public float ghostModeTimer = 0;
     public bool runningTimer;
-    public bool completedTimer; 
+    public bool completedTimer;
+
+    public GameSettings settings = new GameSettings();
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
@@ -143,6 +145,8 @@ public class GameManager : MonoBehaviour
         }
 
         pacman.GetComponent<PlayerController>().Setup();
+        pacman.GetComponent<MovementController>().SetSpeed(settings.playerSpeed);
+        powerPelletTimer = settings.powerPelletDuration;
 
         redGhostController.Setup();
         pinkGhostController.Setup();
